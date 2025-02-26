@@ -74,21 +74,34 @@ async function queryOllama(settings, prompt, systemPrompt) {
     requestBody.system = systemPrompt;
   }
   
-  const response = await fetch(url, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify(requestBody)
-  });
-  
-  if (!response.ok) {
-    const errorText = await response.text();
-    throw new Error(`Ollama API error (${response.status}): ${errorText}`);
+  try {
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Origin': chrome.runtime.getURL(''),
+        'Access-Control-Request-Method': 'POST'
+      },
+      mode: 'cors',
+      body: JSON.stringify(requestBody)
+    });
+    
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`Ollama API error (${response.status}): ${errorText}`);
+    }
+    
+    const data = await response.json();
+    return data.response;
+  } catch (error) {
+    console.error("Ollama API error:", error);
+    
+    // If we got a CORS error, provide more helpful information
+    if (error.message.includes("Failed to fetch") || error.message.includes("CORS")) {
+      throw new Error(`CORS error connecting to Ollama. Make sure Ollama is running with CORS enabled. Try running Ollama with: OLLAMA_ORIGINS=* ollama serve`);
+    }
+    throw error;
   }
-  
-  const data = await response.json();
-  return data.response;
 }
 
 // Query VLLM API
@@ -214,20 +227,33 @@ async function testConnection(settings, sendResponse) {
 async function testOllamaConnection(settings) {
   const url = `http://${settings.host}:${settings.port}/api/tags`;
   
-  const response = await fetch(url, {
-    method: 'GET',
-    headers: {
-      'Content-Type': 'application/json'
+  try {
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'Origin': chrome.runtime.getURL(''),
+        'Access-Control-Request-Method': 'GET'
+      },
+      mode: 'cors'
+    });
+    
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`Ollama API error (${response.status}): ${errorText}`);
     }
-  });
-  
-  if (!response.ok) {
-    const errorText = await response.text();
-    throw new Error(`Ollama API error (${response.status}): ${errorText}`);
+    
+    // If we get here, the connection is successful
+    return true;
+  } catch (error) {
+    console.error("Ollama connection test error:", error);
+    
+    // If we got a CORS error, provide more helpful information
+    if (error.message.includes("Failed to fetch") || error.message.includes("CORS")) {
+      throw new Error(`CORS error connecting to Ollama. Make sure Ollama is running with CORS enabled. Try running Ollama with: OLLAMA_ORIGINS=* ollama serve`);
+    }
+    throw error;
   }
-  
-  // If we get here, the connection is successful
-  return true;
 }
 
 // Test VLLM connection
