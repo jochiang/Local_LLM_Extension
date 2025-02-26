@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Local LLM Web Collector</title>
+  <meta charset="UTF-8">
+  <link rel="stylesheet" href="css/popup.css">
+</head>
+<body>
+  <div class="container">
+    <h1>Local LLM Web Collector</h1>
+    
+    <div class="tabs">
+      <button class="tab-btn active" data-tab="collect">Collect</button>
+      <button class="tab-btn" data-tab="query">Query LLM</button>
+      <button class="tab-btn" data-tab="settings">Settings</button>
+    </div>
+    
+    <div id="collect" class="tab-content active">
+      <p>Collect the current webpage to query later with your LLM.</p>
+      <div class="webpage-info">
+        <div id="current-url"></div>
+        <div id="current-title"></div>
+      </div>
+      <button id="collect-btn" class="primary-btn">Collect This Page</button>
+      <div id="collect-status" class="status"></div>
+      
+      <div class="collected-pages">
+        <h3>Collected Pages</h3>
+        <div id="pages-list"></div>
+        <button id="clear-pages" class="secondary-btn">Clear All</button>
+      </div>
+    </div>
+    
+    <div id="query" class="tab-content">
+      <div class="prompt-section">
+        <label for="prompt-input">Enter your prompt:</label>
+        <textarea id="prompt-input" placeholder="Ask about the collected web pages..."></textarea>
+        
+        <div class="system-prompt-toggle">
+          <input type="checkbox" id="use-system-prompt">
+          <label for="use-system-prompt">Use system prompt</label>
+        </div>
+        
+        <div id="system-prompt-container" class="hidden">
+          <label for="system-prompt">System prompt:</label>
+          <textarea id="system-prompt" placeholder="You are a helpful assistant..."></textarea>
+        </div>
+        
+        <button id="send-query" class="primary-btn">Send to LLM</button>
+      </div>
+      
+      <div class="response-section">
+        <h3>LLM Response</h3>
+        <div id="loading" class="hidden">Processing...</div>
+        <div id="response-container"></div>
+      </div>
+    </div>
+    
+    <div id="settings" class="tab-content">
+      <h3>LLM Connection Settings</h3>
+      
+      <div class="setting-item">
+        <label for="llm-type">LLM Type:</label>
+        <select id="llm-type">
+          <option value="vllm">VLLM</option>
+          <option value="ollama">Ollama</option>
+          <option value="custom">Custom API</option>
+        </select>
+      </div>
+      
+      <div class="setting-item">
+        <label for="api-host">Host:</label>
+        <input type="text" id="api-host" placeholder="localhost or IP address">
+      </div>
+      
+      <div class="setting-item">
+        <label for="api-port">Port:</label>
+        <input type="text" id="api-port" placeholder="e.g., 8000 for VLLM, 11434 for Ollama">
+      </div>
+      
+      <div id="custom-api-settings" class="hidden">
+        <div class="setting-item">
+          <label for="api-endpoint">API Endpoint:</label>
+          <input type="text" id="api-endpoint" placeholder="e.g., /v1/completions">
+        </div>
+        
+        <div class="setting-item">
+          <label for="api-key">API Key (if needed):</label>
+          <input type="password" id="api-key" placeholder="Leave blank if not required">
+        </div>
+      </div>
+      
+      <div class="setting-item">
+        <label for="model-name">Model Name:</label>
+        <input type="text" id="model-name" placeholder="e.g., mistral:latest">
+      </div>
+      
+      <button id="save-settings" class="primary-btn">Save Settings</button>
+      <button id="test-connection" class="secondary-btn">Test Connection</button>
+      <div id="connection-status" class="status"></div>
+    </div>
+  </div>
+  
+  <script src="js/popup.js"></script>
+</body>
+</html>
